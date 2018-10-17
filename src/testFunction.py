@@ -49,3 +49,29 @@ multiROIa.paintBox(multiROIBox,  2, 0)
 multiROIBox.setOrigin((multiROIa.getBox().getOriginOpposite() - multiROIa.getBox().getOrigin())*0.25)
 multiROIa.paintBox(multiROIBox,  3, 0)
 multiROIa.publish()
+
+# Define Affine Transformation
+translation = Matrix4x4()
+translation.setTranslation(channel.getBox().getDirectionSizeVector()*0.25)
+rotationAxis = orsVect(0, 1, 0)
+rotation = Matrix4x4()
+rotation.setAsRotation(rotationAxis, 3.1416/8)
+scale = Matrix4x4()
+scale.setScale(orsVect(0.5,1,2))
+#now let's concatenate these transformation, in an arbritrary order
+fullTransform = scale*rotation*translation
+
+# Apply the Transformation
+channelT = channel.copy()
+channelT.setTitle('transformed channel')
+channelT.publish()
+box = channelT.getBox()
+box.transform(fullTransform)
+channelT.setBox(box)
+channelT.setGeometryDirty()
+
+#here we transform the original ROI and MultiROI
+roiA.setBox(box)
+multiROIa.setBox(box)
+roiA.setGeometryDirty()
+multiROIa.setGeometryDirty()
